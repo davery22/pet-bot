@@ -8,6 +8,7 @@ void SystemClock_Config(void);
 void Error_Handler(void);
 
 void LED_Init(void);
+void USART1_user_Init(void);
 void PWM_calibrate(void);
 
 /*
@@ -33,6 +34,7 @@ int main(void) {
 
     //Init peripherals, blinks PC9 LED in loop as heartbeat.
     LED_Init();
+		USART1_user_Init();
     Motor_Init();
     
     while(1) {
@@ -107,6 +109,52 @@ void LED_Init(void) {
 		GPIOC->PUPDR &= ~0xFF000;
 
     GPIOC->ODR &= ~0x3C0;		// Shut them all off initially
+}
+
+
+/**
+  * @brief  Initializes USART1 (uses PA9,PA10)
+  * @param  None
+  * @retval None
+  */
+void USART1_user_Init(void)
+{
+	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+	RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+	
+	// Set PA9/10 to alternate function mode
+	GPIOA->MODER |= 0x280000; GPIOA->MODER &= ~0x140000;
+	
+	// Select USART1 RX/TX function for PA9/10
+	GPIOA->AFR[1] &= ~(0xFF0);
+	GPIOA->AFR[1] |= 0x110;
+	
+	/** USART_1 setup **/
+	{
+		// Set the baud rate to 115200
+		USART1->BRR = SystemCoreClock/115200;
+		
+		// Enable Receiver and Transmitter, respectively
+		USART1->CR1 |= 0x4; USART1->CR1 |= 0x8;
+		
+		// Enable RXNE interrupt in USART1 and NVIC
+		USART1->CR1 |= 0x20;
+		NVIC_EnableIRQ(USART1_IRQn);
+		NVIC_SetPriority(USART1_IRQn, 1);
+		
+		// LAST, enable the USART itself
+		USART1->CR1 |= 0x1;
+	}
+}
+
+
+/** Write a single character over USART1
+*/
+void USART1WriteChar(uint8_t ch) {
+	// Wait for transmit register to be empty
+	while ((USART1->ISR & 0x80) != 0x80) {}
+		
+	USART1->TDR = ch;
 }
 
 

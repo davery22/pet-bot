@@ -38,6 +38,8 @@
 
 /* USER CODE BEGIN 0 */
 
+extern void USART1WriteChar(char);
+
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -124,6 +126,17 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */
+
+/**
+  * @brief  This function handles the USART1 interrupt request.
+  * @param  None
+  * @retval None
+  */
+void USART1_IRQHandler(void)
+{
+	uint8_t ch = USART1->RDR;
+	USART1WriteChar(ch);
+}
 
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
