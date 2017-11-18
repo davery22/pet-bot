@@ -39,6 +39,7 @@
 /* USER CODE BEGIN 0 */
 
 extern void USART1WriteChar(char);
+extern void Parse_USART(char);
 
 /* USER CODE END 0 */
 
@@ -136,6 +137,8 @@ void USART1_IRQHandler(void)
 {
 	uint8_t ch = USART1->RDR;
 	USART1WriteChar(ch);
+	Parse_USART(ch);
+	
 }
 
 /* USER CODE END 1 */

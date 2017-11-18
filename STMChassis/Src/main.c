@@ -10,6 +10,8 @@ void Error_Handler(void);
 void LED_Init(void);
 void USART1_user_Init(void);
 void PWM_calibrate(void);
+void Parse_USART(char);
+void Execute_CMD(int);
 
 /*
  * PINS IN USE FOR MAIN APPLICATION:
@@ -38,7 +40,8 @@ int main(void) {
     Motor_Init();
     
     while(1) {
-			  PWM_calibrate();
+				__WFI();
+			  //PWM_calibrate();
     }
 }
 
@@ -112,7 +115,7 @@ void LED_Init(void) {
 }
 
 
-/**
+/** PA10 => RX!, PA9 => TX!
   * @brief  Initializes USART1 (uses PA9,PA10)
   * @param  None
   * @retval None
@@ -155,6 +158,53 @@ void USART1WriteChar(uint8_t ch) {
 	while ((USART1->ISR & 0x80) != 0x80) {}
 		
 	USART1->TDR = ch;
+}
+
+static char READ_STATE = 0;
+static char MOTOR_ID = 0;
+void Parse_USART(char next) {
+	int speed = 0;
+	
+	switch(READ_STATE) {
+		case 0: // First byte of command - identify device
+			MOTOR_ID = next;
+			if (0x1 <= MOTOR_ID && MOTOR_ID <= 0x7) { // Valid identifier
+				READ_STATE++;
+			}
+			break;
+		case 1: // Second byte of command - specify speed
+			speed = (int)next;
+			if ((unsigned char)next > 0x7f) {
+				speed |= 0xffffff00;
+			}
+			//if (0x61 <= speed && speed <= 0x71) {
+			if (-17 <= speed && speed <= 17) { // Valid speed
+				Execute_CMD(speed);
+			}
+			// Fall-through
+		default: // Impossible state
+			READ_STATE = 0;
+			break;
+	}
+}
+
+
+void Execute_CMD(int speed) {
+	if (MOTOR_ID == 0x1) {
+		if (speed > 0) {
+			GPIOC->ODR |= GPIO_ODR_9;
+			GPIOC->ODR &= ~GPIO_ODR_8 & ~GPIO_ODR_6;
+		}
+		else if (speed < 0) {
+			GPIOC->ODR |= GPIO_ODR_6;
+			GPIOC->ODR &= ~GPIO_ODR_9 & ~GPIO_ODR_8;
+		}
+		else {
+			GPIOC->ODR |= GPIO_ODR_8;
+			GPIOC->ODR &= ~GPIO_ODR_9 & ~GPIO_ODR_6;
+		}
+		PWM_set_duty_cycle(50 + speed);
+	}
 }
 
 
