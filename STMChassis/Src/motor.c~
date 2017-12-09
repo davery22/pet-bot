@@ -11,6 +11,7 @@
 // Initially 50% -- neutral pulse (stopped)
 static uint8_t left_m_duty = 50;
 static uint8_t right_m_duty = 50;
+static uint8_t central_m_duty = 50;
 
 /*
  * PINS IN USE FOR MOTOR CONTROL:
@@ -70,6 +71,28 @@ void PWM_Init(void)
 
 		TIM17->CR1 |= TIM_CR1_CEN;                      // Enable timer
     }
+
+    // Central Motor Init
+    {
+		// Set up a pin for PWM output (TIMER 15 CH1) - use PB14 -> AF1
+		GPIOB->MODER |= 0x20000000; GPIOB->MODER &= ~0x10000000;
+		GPIOB->AFR[1] |= 0x1000000; GPIOB->AFR[1] &= ~0xE000000;
+
+		// Set up PWM timer
+		RCC->APB2ENR |= RCC_APB2ENR_TIM15EN;
+		TIM15->CR1 = 0;                                 // Clear control register
+
+		// Set output-compare CH1 to PWM1 mode and enable CCR1 preload buffer
+		TIM15->CCMR1 = (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1PE);
+		TIM15->CCER = TIM_CCER_CC1E;                    // Enable capture-compare channel 1
+		TIM15->PSC = SystemCoreClock/1000000 - 1;       // Run timer on 1Mhz
+		TIM15->ARR = 3000;                              // PWM at 333Hz (3ms period)
+		TIM15->BDTR |= TIM_BDTR_MOE;
+		
+		PWM_set_duty_cycle(CENTRAL_MOTOR, central_m_duty);  // Initialize PWM duty cycle
+
+		TIM15->CR1 |= TIM_CR1_CEN;                      // Enable timer
+    }
 }
 
 void PWM_set_duty_cycle(uint8_t motor_id, uint8_t duty) {
@@ -84,7 +107,10 @@ void PWM_set_duty_cycle(uint8_t motor_id, uint8_t duty) {
             TIM16->CCR1 = (duty * TIM16->ARR)/100; // Use linear transform to produce CCR1 value
             break;
         case RIGHT_MOTOR:
-            TIM16->CCR1 = (duty * TIM16->ARR)/100; // Use linear transform to produce CCR1 value
+            TIM17->CCR1 = (duty * TIM17->ARR)/100; // Use linear transform to produce CCR1 value
+            break;
+        case CENTER_MOTOR:
+            TIM15->CCR1 = (duty * TIM15->ARR)/100; // Use linear transform to produce CCR1 value
             break;
         default:
             break;

@@ -11,6 +11,7 @@
 
 #define LEFT_MOTOR 0
 #define RIGHT_MOTOR 1
+#define CENTRAL_MOTOR 2
 
 /* -------------------------------------------------------------------------------------------------------------
  *  Motor Control and Initialization Functions
