@@ -129,16 +129,38 @@ void SysTick_Handler(void)
 /* USER CODE BEGIN 1 */
 
 /**
-  * @brief  This function handles the USART1 interrupt request.
-  * @param  None
-  * @retval None
-  */
+ * @brief  This function handles the USART1 interrupt request.
+ * @param  None
+ * @retval None
+ */
 void USART1_IRQHandler(void)
 {
 	uint8_t ch = USART1->RDR;
 	USART1WriteChar(ch);
 	Parse_USART(ch);
+}
+
+/**
+ * Handles the TIM2 interrupt request, periodically updating PWM signals
+ */
+void TIM2_IRQHandler(void)
+{
+	// Update PWM if necessary
+	if (current_left_motor_duty != target_left_motor_duty) {
+		int inc = (target_left_motor_duty > current_left_motor_duty) ? 1 : -1;
+		PWM_set_duty_cycle(LEFT_MOTOR, current_left_motor_duty + inc);
+	}
+	if (current_right_motor_duty != target_right_motor_duty) {
+		int inc = (target_right_motor_duty > current_right_motor_duty) ? 1 : -1;
+		PWM_set_duty_cycle(RIGHT_MOTOR, current_right_motor_duty + inc);
+	}
+	if (current_central_motor_duty != target_central_motor_duty) {
+		int inc = (target_central_motor_duty > current_central_motor_duty) ? 1 : -1;
+		PWM_set_duty_cycle(CENTRAL_MOTOR, current_central_motor_duty + inc);
+	}
 	
+	// Clear the interrupt
+	TIM2->SR &= ~TIM_SR_UIF;
 }
 
 /* USER CODE END 1 */

@@ -9,7 +9,8 @@ void Error_Handler(void);
 
 void LED_Init(void);
 void USART1_user_Init(void);
-void PWM_calibrate(void);
+void TIM2_Init(void);
+void PWM_calibrate(uint8_t);
 void Parse_USART(char);
 void Execute_CMD(int);
 
@@ -36,65 +37,47 @@ int main(void) {
     LED_Init();
 	USART1_user_Init();
     PWM_Init();
+		TIM2_Init();
     
     while(1) {
-		__WFI(); // Wait for interrupt
-	    ////PWM_calibrate();
+			////__WFI(); // Wait for interrupt
+	    PWM_calibrate(CENTRAL_MOTOR);
     }
 }
 
 
-/* Runs a simple test of the PWM calibration:
- *   mid -> max -> min -> max -> min -> mid
- * i.e.
- *   stopped -> forward -> reverse -> forward -> reverse -> stopped
- * LED's flash to mimic the LED's on the motor driver.
- */
-void PWM_calibrate(void) {
-	GPIOC->ODR |= GPIO_ODR_8;  // Orange ON; holding middle
-	HAL_Delay(2048);
-	GPIOC->ODR &= ~GPIO_ODR_8; // Orange OFF; beginning calibration...
+void TIM2_Init(void) {
+	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
 	
-	int i, j, duty = 50;
-	for (i = 0; i < 2; i++) {
-		// Go up to max
-		for (j = 0; j < 17; j++) {
-			GPIOC->ODR ^= GPIO_ODR_9;
-			PWM_set_duty_cycle(++duty);
-			HAL_Delay(128);
-		}
-		
-		GPIOC->ODR |= GPIO_ODR_9;
-		HAL_Delay(1024); // Hold at max a little longer
-		
-		// Go down to mid
-		for (j = 0; j < 17; j++) {
-			GPIOC->ODR ^= GPIO_ODR_9;
-			PWM_set_duty_cycle(--duty);
-			HAL_Delay(128);
-		}
-		
-		GPIOC->ODR &= ~GPIO_ODR_9;
-		
-		// Go down to min
-		for (j = 0; j < 17; j++) {
-			GPIOC->ODR ^= GPIO_ODR_6;
-			PWM_set_duty_cycle(--duty);
-			HAL_Delay(128);
-		}
-		
-		GPIOC->ODR |= GPIO_ODR_6;
-		HAL_Delay(1024); // Hold at min a little longer
-		
-		// Go up to mid
-		for (j = 0; j < 17; j++) {
-			GPIOC->ODR ^= GPIO_ODR_6;
-			PWM_set_duty_cycle(++duty);
-			HAL_Delay(128);
-		}
-		
-		GPIOC->ODR &= ~GPIO_ODR_6;
-	}
+	// Enable interrupt on TIM2 update
+	TIM2->DIER |= 0x1;
+	
+	// Set reset rate of TIM2 -- THIS CONTROLS THE MOTOR SPEED UPDATE RATE
+	TIM2->PSC = SystemCoreClock/1000 - 1;		// Run timer on 1kHz
+	TIM2->ARR = 80;												  // Reset at 12.5Hz (80ms period)
+	
+	// Enable TIM2's interrupt in the NVIC
+	NVIC_EnableIRQ(TIM2_IRQn);
+	NVIC_SetPriority(TIM2_IRQn, 1);
+	
+	// Enable TIM2
+	TIM2->CR1 |= 0x1;
+}
+
+
+/* Runs a simple test of the PWM calibration:
+ *   mid -> max -> min -> mid
+ * i.e.
+ *   stopped -> forward -> reverse -> stopped
+ */
+void PWM_calibrate(uint8_t motor_id) {
+	// Test full forward and backward motion
+	PWM_set_target_duty(motor_id, 67); // Full forward
+	HAL_Delay(3000);
+	PWM_set_target_duty(motor_id, 33); // Full backward
+	HAL_Delay(4000);
+	PWM_set_target_duty(motor_id, 50); // Stopped
+	HAL_Delay(3000);
 }
 
 
@@ -140,7 +123,7 @@ void USART1_user_Init(void)
 		// Enable RXNE interrupt in USART1 and NVIC
 		USART1->CR1 |= 0x20;
 		NVIC_EnableIRQ(USART1_IRQn);
-		NVIC_SetPriority(USART1_IRQn, 1);
+		NVIC_SetPriority(USART1_IRQn, 2);
 		
 		// LAST, enable the USART itself
 		USART1->CR1 |= 0x1;
@@ -199,7 +182,7 @@ void Execute_CMD(int speed) {
         GPIOC->ODR |= GPIO_ODR_8;
         GPIOC->ODR &= ~GPIO_ODR_9 & ~GPIO_ODR_6;
     }
-    PWM_set_duty_cycle(MOTOR_ID, 50 + speed);
+    PWM_set_target_duty(MOTOR_ID, 50 + speed);
 }
 
 

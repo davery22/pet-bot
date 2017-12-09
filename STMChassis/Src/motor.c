@@ -7,11 +7,12 @@
  * --------------------------------------------------------------------------------------------------------------
  */
 
-// Stored duty cycles (for smooth transitioning between speeds)
-// Initially 50% -- neutral pulse (stopped)
-static uint8_t left_m_duty = 50;
-static uint8_t right_m_duty = 50;
-static uint8_t central_m_duty = 50;
+volatile uint8_t current_left_motor_duty = 50;
+volatile uint8_t current_right_motor_duty = 50;
+volatile uint8_t current_central_motor_duty = 50;
+volatile uint8_t target_left_motor_duty = 50;
+volatile uint8_t target_right_motor_duty = 50;
+volatile uint8_t target_central_motor_duty = 50;
 
 /*
  * PINS IN USE FOR MOTOR CONTROL:
@@ -45,7 +46,7 @@ void PWM_Init(void)
 		TIM16->ARR = 3000;                              // PWM at 333Hz (3ms period)
 		TIM16->BDTR |= TIM_BDTR_MOE;
 		
-		PWM_set_duty_cycle(LEFT_MOTOR, left_m_duty);    // Initialize PWM duty cycle
+		PWM_set_duty_cycle(LEFT_MOTOR, current_left_motor_duty);    // Initialize PWM duty cycle
 
 		TIM16->CR1 |= TIM_CR1_CEN;                      // Enable timer
 	}
@@ -67,7 +68,7 @@ void PWM_Init(void)
 		TIM17->ARR = 3000;                              // PWM at 333Hz (3ms period)
 		TIM17->BDTR |= TIM_BDTR_MOE;
 		
-		PWM_set_duty_cycle(RIGHT_MOTOR, right_m_duty);  // Initialize PWM duty cycle
+		PWM_set_duty_cycle(RIGHT_MOTOR, current_right_motor_duty);  // Initialize PWM duty cycle
 
 		TIM17->CR1 |= TIM_CR1_CEN;                      // Enable timer
     }
@@ -89,27 +90,47 @@ void PWM_Init(void)
 		TIM15->ARR = 3000;                              // PWM at 333Hz (3ms period)
 		TIM15->BDTR |= TIM_BDTR_MOE;
 		
-		PWM_set_duty_cycle(CENTRAL_MOTOR, central_m_duty);  // Initialize PWM duty cycle
+		PWM_set_duty_cycle(CENTRAL_MOTOR, current_central_motor_duty);  // Initialize PWM duty cycle
 
 		TIM15->CR1 |= TIM_CR1_CEN;                      // Enable timer
     }
 }
 
-void PWM_set_duty_cycle(uint8_t motor_id, uint8_t duty) {
+void PWM_set_target_duty(uint8_t motor_id, uint8_t duty) {
 	// Validate bounds
 	if (duty > 100) {
 		return;
 	}
 	
-    // And adjust the correct motor
+	// Adjust target duty cycle for motor
+	switch(motor_id) {
+		case LEFT_MOTOR:
+			target_left_motor_duty = duty;
+			break;
+		case RIGHT_MOTOR:
+			target_right_motor_duty = duty;
+			break;
+		case CENTRAL_MOTOR:
+			target_central_motor_duty = duty;
+			break;
+		default:
+			break;
+	}
+}
+
+void PWM_set_duty_cycle(uint8_t motor_id, uint8_t duty) {
+    // Set the motor's PWM duty cycle
     switch(motor_id) {
         case LEFT_MOTOR:
+						current_left_motor_duty = duty;
             TIM16->CCR1 = (duty * TIM16->ARR)/100; // Use linear transform to produce CCR1 value
             break;
         case RIGHT_MOTOR:
+						current_right_motor_duty = duty;
             TIM17->CCR1 = (duty * TIM17->ARR)/100; // Use linear transform to produce CCR1 value
             break;
-        case CENTER_MOTOR:
+        case CENTRAL_MOTOR:
+						current_central_motor_duty = duty;
             TIM15->CCR1 = (duty * TIM15->ARR)/100; // Use linear transform to produce CCR1 value
             break;
         default:
