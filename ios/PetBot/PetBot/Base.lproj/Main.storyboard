@@ -95,7 +95,7 @@
                                 </constraints>
                                 <state key="normal" title="Arm"/>
                                 <connections>
-                                    <segue destination="PKc-Hb-02c" kind="show" id="FAQ-5a-EM7"/>
+                                    <segue destination="PKc-Hb-02c" kind="show" identifier="ToArm" id="FAQ-5a-EM7"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rW8-7B-cgt">
@@ -106,12 +106,18 @@
                                 </constraints>
                                 <state key="normal" title="Disconnect"/>
                                 <connections>
-                                    <segue destination="BYZ-38-t0r" kind="show" id="G80-zQ-4eY"/>
+                                    <segue destination="BYZ-38-t0r" kind="show" identifier="Disconnect" id="G80-zQ-4eY"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Chassis" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Z5A-7j-hhy">
                                 <rect key="frame" x="130" y="40" width="60" height="21"/>
                                 <color key="backgroundColor" white="1" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hg3-ix-vqq">
+                                <rect key="frame" x="161" y="284.5" width="0.0" height="0.0"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -122,15 +128,28 @@
                         <constraints>
                             <constraint firstItem="Skf-Mx-bd4" firstAttribute="bottom" secondItem="sWQ-vV-Zd9" secondAttribute="bottom" constant="20" id="4lC-VI-pIs"/>
                             <constraint firstItem="rW8-7B-cgt" firstAttribute="leading" secondItem="Skf-Mx-bd4" secondAttribute="leading" constant="20" id="Fm3-GL-VGy"/>
+                            <constraint firstItem="hg3-ix-vqq" firstAttribute="centerX" secondItem="3kS-Og-8ny" secondAttribute="centerX" id="IIC-n0-jkh"/>
                             <constraint firstItem="Z5A-7j-hhy" firstAttribute="top" secondItem="Skf-Mx-bd4" secondAttribute="top" constant="20" id="Tkf-9G-mbg"/>
                             <constraint firstItem="Z5A-7j-hhy" firstAttribute="centerX" secondItem="3kS-Og-8ny" secondAttribute="centerX" id="dz0-lG-iVe"/>
+                            <constraint firstItem="hg3-ix-vqq" firstAttribute="centerY" secondItem="3kS-Og-8ny" secondAttribute="centerY" id="jDX-qz-vKh"/>
                             <constraint firstItem="Skf-Mx-bd4" firstAttribute="bottom" secondItem="rW8-7B-cgt" secondAttribute="bottom" constant="20" id="jZV-9H-hqO"/>
                             <constraint firstItem="Skf-Mx-bd4" firstAttribute="trailing" secondItem="sWQ-vV-Zd9" secondAttribute="trailing" constant="20" id="ndA-g2-40d"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="Skf-Mx-bd4"/>
+                        <connections>
+                            <outletCollection property="gestureRecognizers" destination="Bj0-fG-mjF" appends="YES" id="1nP-xa-kNG"/>
+                        </connections>
                     </view>
+                    <connections>
+                        <outlet property="debugLabel" destination="hg3-ix-vqq" id="742-D3-pFT"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Jhn-sQ-zfG" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <panGestureRecognizer minimumNumberOfTouches="1" id="Bj0-fG-mjF">
+                    <connections>
+                        <action selector="panReceived:" destination="NHt-zy-Kqf" id="eMQ-Zw-4QP"/>
+                    </connections>
+                </panGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="806.25" y="32.74647887323944"/>
         </scene>
@@ -150,7 +169,7 @@
                                 </constraints>
                                 <state key="normal" title="Chassis"/>
                                 <connections>
-                                    <segue destination="NHt-zy-Kqf" kind="show" id="VMo-Xm-FCv"/>
+                                    <segue destination="NHt-zy-Kqf" kind="show" identifier="ToChassis" id="VMo-Xm-FCv"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jUQ-PF-8gI">
@@ -161,7 +180,7 @@
                                 </constraints>
                                 <state key="normal" title="Disconnect"/>
                                 <connections>
-                                    <segue destination="BYZ-38-t0r" kind="show" id="oMn-cG-YXl"/>
+                                    <segue destination="BYZ-38-t0r" kind="show" identifier="Disconnect" id="oMn-cG-YXl"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Arm" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uZZ-1z-t1F">
@@ -173,7 +192,16 @@
                             </label>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="K77-LP-z2y">
                                 <rect key="frame" x="20" y="268.5" width="51" height="31"/>
+                                <connections>
+                                    <action selector="laserSwitchChanged:" destination="PKc-Hb-02c" eventType="valueChanged" id="epT-Ks-b9A"/>
+                                </connections>
                             </switch>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iD5-JZ-tGP">
+                                <rect key="frame" x="160" y="284" width="0.0" height="0.0"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <gestureRecognizers/>
@@ -182,17 +210,39 @@
                             <constraint firstItem="Oes-gG-iUQ" firstAttribute="bottom" secondItem="A09-KX-QcO" secondAttribute="bottom" constant="20" id="AsK-Pz-bFg"/>
                             <constraint firstItem="jUQ-PF-8gI" firstAttribute="leading" secondItem="Oes-gG-iUQ" secondAttribute="leading" constant="20" id="GMP-vg-ljY"/>
                             <constraint firstItem="Oes-gG-iUQ" firstAttribute="trailing" secondItem="A09-KX-QcO" secondAttribute="trailing" constant="20" id="J5u-5t-rCv"/>
+                            <constraint firstItem="iD5-JZ-tGP" firstAttribute="centerX" secondItem="IL1-Z2-kaf" secondAttribute="centerX" id="MiB-wr-bw6"/>
                             <constraint firstItem="uZZ-1z-t1F" firstAttribute="top" secondItem="Oes-gG-iUQ" secondAttribute="top" constant="20" id="Nqr-eY-aaT"/>
+                            <constraint firstItem="iD5-JZ-tGP" firstAttribute="centerY" secondItem="IL1-Z2-kaf" secondAttribute="centerY" id="WnC-go-6kp"/>
                             <constraint firstItem="Oes-gG-iUQ" firstAttribute="bottom" secondItem="jUQ-PF-8gI" secondAttribute="bottom" constant="20" id="ar2-BZ-OI4"/>
                             <constraint firstItem="K77-LP-z2y" firstAttribute="centerY" secondItem="IL1-Z2-kaf" secondAttribute="centerY" id="bVD-bG-Be0"/>
                             <constraint firstItem="uZZ-1z-t1F" firstAttribute="centerX" secondItem="IL1-Z2-kaf" secondAttribute="centerX" id="j4D-Xj-ODF"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="Oes-gG-iUQ"/>
+                        <connections>
+                            <outletCollection property="gestureRecognizers" destination="5Y7-vz-ri5" appends="YES" id="sQD-oN-kAQ"/>
+                            <outletCollection property="gestureRecognizers" destination="LiP-qF-pN9" appends="YES" id="snQ-HG-CgQ"/>
+                            <outletCollection property="gestureRecognizers" destination="BIu-2D-5rE" appends="YES" id="cq7-m9-Wyf"/>
+                        </connections>
                     </view>
+                    <connections>
+                        <outlet property="debugLabel" destination="iD5-JZ-tGP" id="dLx-Iy-aXJ"/>
+                        <outlet property="laserSwitch" destination="K77-LP-z2y" id="EEt-CA-qH7"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8P2-FY-0Xp" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <panGestureRecognizer minimumNumberOfTouches="1" maximumNumberOfTouches="1" id="5Y7-vz-ri5">
+                    <connections>
+                        <action selector="armDirectionChanged:" destination="PKc-Hb-02c" id="yeb-ba-r6S"/>
+                    </connections>
+                </panGestureRecognizer>
+                <panGestureRecognizer minimumNumberOfTouches="2" id="LiP-qF-pN9">
+                    <connections>
+                        <action selector="armReachChanged:" destination="PKc-Hb-02c" id="ZR9-HI-xWD"/>
+                    </connections>
+                </panGestureRecognizer>
+                <pinchGestureRecognizer id="BIu-2D-5rE"/>
             </objects>
-            <point key="canvasLocation" x="1580.2816901408451" y="31.875"/>
+            <point key="canvasLocation" x="1578.75" y="31.690140845070424"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>

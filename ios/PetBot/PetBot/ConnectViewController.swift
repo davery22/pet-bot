@@ -11,6 +11,8 @@ import UIKit
 class ConnectViewController: UIViewController, UITextFieldDelegate {
     // MARK: - Properties
     
+    var previousChassisAddress: String?
+    var previousArmAddress: String?
     @IBOutlet weak var armAddressTextField: UITextField!
     @IBOutlet weak var chassisAddressTextField: UITextField!
     @IBOutlet weak var connectButton: UIButton!
@@ -23,6 +25,13 @@ class ConnectViewController: UIViewController, UITextFieldDelegate {
         // Handle the text fields' user input through delegate callbacks.
         armAddressTextField.delegate = self
         chassisAddressTextField.delegate = self
+        
+        if let previousArmAddress = previousArmAddress {
+            self.armAddressTextField.text = previousArmAddress
+        }
+        if let previousChassisAddress = previousChassisAddress {
+            self.chassisAddressTextField.text = previousChassisAddress
+        }
 
         // Enable the Connect button only if address fields are valid.
         updateConnectButtonState()
@@ -49,15 +58,21 @@ class ConnectViewController: UIViewController, UITextFieldDelegate {
         connectButton.isEnabled = false
     }
 
-    /*
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+        super.prepare(for: segue, sender: sender)
+        
+        // Prepare a DeviceManager for the view controllers.
+        let deviceMgr = DeviceManager(armAddress: armAddressTextField.text!, chassisAddress: chassisAddressTextField.text!)
+        
+        guard let chassisViewController = segue.destination as? ChassisViewController else {
+            fatalError("Unexpected destination: \(segue.destination)")
+        }
+        
+        chassisViewController.deviceMgr = deviceMgr
     }
-    */
 
     // MARK: - Private Methods
     
